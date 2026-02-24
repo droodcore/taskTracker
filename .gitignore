@@ -34,3 +34,12 @@ build/
 
 # Security
 .env
+
+# AI & Agents
+.gemini/
+.agents/
+_agents/
+.cursor/
+.cursorrules
+prd.json
+ARCHITECTURE.md
