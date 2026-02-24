@@ -14,16 +14,17 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public UserDto createUser(UserDto userDto) {
-        User user = UserMapper.INSTANCE.toEntity(userDto);
+        User user = userMapper.toEntity(userDto);
         User savedUser = userRepository.save(user);
-        return UserMapper.INSTANCE.toDto(savedUser);
+        return userMapper.toDto(savedUser);
     }
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserMapper.INSTANCE::toDto)
+                .map(userMapper::toDto)
                 .toList();
     }
 }

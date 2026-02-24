@@ -6,27 +6,33 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
+@Tag(name = "Task API", description = "Endpoints for managing tasks")
 public class TaskController {
 
     private final TaskService taskService;
 
     @PostMapping
+    @Operation(summary = "Create a new task", description = "Creates a new task tied to a user and category")
     public ResponseEntity<TaskDto> createTask(@RequestBody TaskDto taskDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(taskDto));
     }
 
     @GetMapping
+    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks. Can be filtered by category name")
     public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam(required = false) String category) {
         return ResponseEntity.ok(taskService.getAllTasks(category));
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a task", description = "Deletes a task by its ID")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();

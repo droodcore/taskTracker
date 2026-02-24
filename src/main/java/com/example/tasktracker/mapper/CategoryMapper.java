@@ -4,11 +4,9 @@ import com.example.tasktracker.dto.CategoryDto;
 import com.example.tasktracker.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryMapper {
-    CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
     CategoryDto toDto(Category category);
 
