@@ -35,6 +35,9 @@ build/
 # Security
 .env
 
+# Scripts
+ralph_check.sh
+
 # AI & Agents
 .gemini/
 .agents/
