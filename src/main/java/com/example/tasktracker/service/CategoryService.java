@@ -14,16 +14,17 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     public CategoryDto createCategory(CategoryDto categoryDto) {
-        Category category = CategoryMapper.INSTANCE.toEntity(categoryDto);
+        Category category = categoryMapper.toEntity(categoryDto);
         Category savedCategory = categoryRepository.save(category);
-        return CategoryMapper.INSTANCE.toDto(savedCategory);
+        return categoryMapper.toDto(savedCategory);
     }
 
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(CategoryMapper.INSTANCE::toDto)
+                .map(categoryMapper::toDto)
                 .toList();
     }
 }

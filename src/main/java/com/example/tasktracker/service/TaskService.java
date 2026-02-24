@@ -15,21 +15,22 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     public TaskDto createTask(TaskDto taskDto) {
-        Task task = TaskMapper.INSTANCE.toEntity(taskDto);
+        Task task = taskMapper.toEntity(taskDto);
         Task savedTask = taskRepository.save(task);
-        return TaskMapper.INSTANCE.toDto(savedTask);
+        return taskMapper.toDto(savedTask);
     }
 
     public List<TaskDto> getAllTasks(String category) {
         if (category != null && !category.isEmpty()) {
             return taskRepository.findByCategoryNameIgnoreCase(category).stream()
-                    .map(TaskMapper.INSTANCE::toDto)
+                    .map(taskMapper::toDto)
                     .toList();
         }
         return taskRepository.findAll().stream()
-                .map(TaskMapper.INSTANCE::toDto)
+                .map(taskMapper::toDto)
                 .toList();
     }
 
