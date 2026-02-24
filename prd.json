@@ -23,7 +23,7 @@
                 "application.yaml reads DB credentials via ${ENV_VAR}",
                 "Container starts and App connects to DB successfully"
             ],
-            "status": "pending"
+            "status": "completed"
         },
         {
             "id": "T-003",

@@ -8,6 +8,12 @@ export TESTCONTAINERS_RYUK_DISABLED=true
 
 # Gatekeeper script for RALPH flow
 
+if [ -f .env ]; then
+  set -a
+  source .env
+  set +a
+fi
+
 echo "Running RALPH Gatekeeper Checks..."
 
 # 2. Compile & Unit Tests
