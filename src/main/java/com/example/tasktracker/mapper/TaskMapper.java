@@ -6,9 +6,11 @@ import com.example.tasktracker.model.Task;
 import com.example.tasktracker.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface TaskMapper {
+    TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "category.id", target = "categoryId")
