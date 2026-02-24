@@ -31,6 +31,18 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks(category));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get task by ID", description = "Returns a task by its ID")
+    public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.getTaskById(id));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update a task", description = "Updates a task by its ID")
+    public ResponseEntity<TaskDto> updateTask(@PathVariable Long id, @RequestBody TaskDto taskDto) {
+        return ResponseEntity.ok(taskService.updateTask(id, taskDto));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a task", description = "Deletes a task by its ID")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {

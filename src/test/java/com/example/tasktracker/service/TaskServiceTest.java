@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -87,6 +88,61 @@ class TaskServiceTest {
         assertEquals(1, results.size());
         assertEquals("Do work", results.get(0).title());
         verify(taskMapper).toDto(task);
+    }
+
+    @Test
+    void getTaskById() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", 1L, 1L));
+
+        TaskDto result = taskService.getTaskById(1L);
+
+        assertEquals(1L, result.id());
+        assertEquals("Do work", result.title());
+    }
+
+    @Test
+    void getTaskById_WhenNotFound() {
+        when(taskRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> taskService.getTaskById(99L));
+    }
+
+    @Test
+    void updateTask() {
+        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", 2L, 3L);
+        User updatedUser = User.builder().id(2L).build();
+        Category updatedCategory = Category.builder().id(3L).name("Home").build();
+        Task updatedTask = Task.builder()
+                .id(1L)
+                .title("Updated title")
+                .description("Updated description")
+                .status("IN_PROGRESS")
+                .user(updatedUser)
+                .category(updatedCategory)
+                .build();
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(taskMapper.mapUser(2L)).thenReturn(updatedUser);
+        when(taskMapper.mapCategory(3L)).thenReturn(updatedCategory);
+        when(taskRepository.save(task)).thenReturn(updatedTask);
+        when(taskMapper.toDto(updatedTask))
+                .thenReturn(new TaskDto(1L, "Updated title", "Updated description", null, "IN_PROGRESS", 2L, 3L));
+
+        TaskDto result = taskService.updateTask(1L, dto);
+
+        assertEquals("Updated title", result.title());
+        assertEquals("IN_PROGRESS", result.status());
+        assertEquals(2L, result.userId());
+        assertEquals(3L, result.categoryId());
+    }
+
+    @Test
+    void updateTask_WhenNotFound() {
+        TaskDto dto = new TaskDto(null, "Updated", null, null, "DONE", 1L, 1L);
+        when(taskRepository.findById(100L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> taskService.updateTask(100L, dto));
     }
 
     @Test

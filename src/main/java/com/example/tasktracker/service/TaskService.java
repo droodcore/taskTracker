@@ -34,6 +34,32 @@ public class TaskService {
                 .toList();
     }
 
+    public TaskDto getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+        return taskMapper.toDto(task);
+    }
+
+    public TaskDto updateTask(Long id, TaskDto taskDto) {
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
+
+        existingTask.setTitle(taskDto.title());
+        existingTask.setDescription(taskDto.description());
+        existingTask.setDeadline(taskDto.deadline());
+        existingTask.setStatus(taskDto.status());
+
+        if (taskDto.userId() != null) {
+            existingTask.setUser(taskMapper.mapUser(taskDto.userId()));
+        }
+        if (taskDto.categoryId() != null) {
+            existingTask.setCategory(taskMapper.mapCategory(taskDto.categoryId()));
+        }
+
+        Task updatedTask = taskRepository.save(existingTask);
+        return taskMapper.toDto(updatedTask);
+    }
+
     public void deleteTask(Long id) {
         if (!taskRepository.existsById(id)) {
             throw new ResourceNotFoundException("Task not found with id " + id);

@@ -74,6 +74,30 @@ class TaskControllerTest {
     }
 
     @Test
+    void getTaskById() throws Exception {
+        when(taskService.getTaskById(1L))
+                .thenReturn(new TaskDto(1L, "Title", "Desc", null, "TODO", 1L, 1L));
+
+        mockMvc.perform(get("/tasks/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Title"));
+    }
+
+    @Test
+    void updateTask() throws Exception {
+        when(taskService.updateTask(any(Long.class), any(TaskDto.class)))
+                .thenReturn(new TaskDto(1L, "Updated title", "Updated desc", null, "IN_PROGRESS", 2L, 3L));
+
+        mockMvc.perform(put("/tasks/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"Updated title\",\"description\":\"Updated desc\",\"status\":\"IN_PROGRESS\",\"userId\":2,\"categoryId\":3}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated title"))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+    }
+
+    @Test
     void deleteTask() throws Exception {
         doNothing().when(taskService).deleteTask(1L);
 
@@ -87,6 +111,16 @@ class TaskControllerTest {
                 .when(taskService).deleteTask(42L);
 
         mockMvc.perform(delete("/tasks/42"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Task not found with id 42"));
+    }
+
+    @Test
+    void getTaskById_WhenNotFound() throws Exception {
+        when(taskService.getTaskById(42L)).thenThrow(new ResourceNotFoundException("Task not found with id 42"));
+
+        mockMvc.perform(get("/tasks/42"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Task not found with id 42"));
