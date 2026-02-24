@@ -3,8 +3,10 @@ package com.example.tasktracker.service;
 import com.example.tasktracker.dto.TaskDto;
 import com.example.tasktracker.mapper.TaskMapper;
 import com.example.tasktracker.model.Task;
+import com.example.tasktracker.repository.CategoryRepository;
 import com.example.tasktracker.repository.TaskRepository;
 import com.example.tasktracker.exception.ResourceNotFoundException;
+import com.example.tasktracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final TaskMapper taskMapper;
 
     public TaskDto createTask(TaskDto taskDto) {
@@ -50,10 +54,13 @@ public class TaskService {
         existingTask.setStatus(taskDto.status());
 
         if (taskDto.userId() != null) {
-            existingTask.setUser(taskMapper.mapUser(taskDto.userId()));
+            existingTask.setUser(userRepository.findById(taskDto.userId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + taskDto.userId())));
         }
         if (taskDto.categoryId() != null) {
-            existingTask.setCategory(taskMapper.mapCategory(taskDto.categoryId()));
+            existingTask.setCategory(categoryRepository.findById(taskDto.categoryId())
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("Category not found with id " + taskDto.categoryId())));
         }
 
         Task updatedTask = taskRepository.save(existingTask);

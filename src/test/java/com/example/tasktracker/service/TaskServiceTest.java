@@ -6,7 +6,9 @@ import com.example.tasktracker.mapper.TaskMapper;
 import com.example.tasktracker.model.Category;
 import com.example.tasktracker.model.Task;
 import com.example.tasktracker.model.User;
+import com.example.tasktracker.repository.CategoryRepository;
 import com.example.tasktracker.repository.TaskRepository;
+import com.example.tasktracker.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,12 @@ class TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @Mock
     private TaskMapper taskMapper;
@@ -123,8 +131,8 @@ class TaskServiceTest {
                 .build();
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskMapper.mapUser(2L)).thenReturn(updatedUser);
-        when(taskMapper.mapCategory(3L)).thenReturn(updatedCategory);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(updatedUser));
+        when(categoryRepository.findById(3L)).thenReturn(Optional.of(updatedCategory));
         when(taskRepository.save(task)).thenReturn(updatedTask);
         when(taskMapper.toDto(updatedTask))
                 .thenReturn(new TaskDto(1L, "Updated title", "Updated description", null, "IN_PROGRESS", 2L, 3L));
@@ -143,6 +151,26 @@ class TaskServiceTest {
         when(taskRepository.findById(100L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> taskService.updateTask(100L, dto));
+    }
+
+    @Test
+    void updateTask_WhenUserNotFound() {
+        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", 99L, null);
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> taskService.updateTask(1L, dto));
+        verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    @Test
+    void updateTask_WhenCategoryNotFound() {
+        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", null, 99L);
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> taskService.updateTask(1L, dto));
+        verify(taskRepository, never()).save(any(Task.class));
     }
 
     @Test
