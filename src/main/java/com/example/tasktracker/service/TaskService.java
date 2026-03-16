@@ -11,6 +11,10 @@ import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +29,7 @@ public class TaskService {
     private final CategoryRepository categoryRepository;
     private final TaskMapper taskMapper;
 
+    @CacheEvict(value = "taskLists", allEntries = true)
     public TaskDto createTask(CreateTaskDto request) {
         Task task = taskMapper.toEntity(request);
         task.setType(request.type() != null ? request.type() : TaskType.OTHER);
@@ -41,6 +46,7 @@ public class TaskService {
         return getAllTasks(category, null);
     }
 
+    @Cacheable(value = "taskLists")
     public List<TaskDto> getAllTasks(String category, TaskType type) {
         if (category != null && !category.isEmpty() && type != null) {
             return taskRepository.findByCategoryNameIgnoreCaseAndType(category, type).stream()
@@ -62,12 +68,16 @@ public class TaskService {
                 .toList();
     }
 
+    @Cacheable(value = "tasks", key = "#id")
     public TaskDto getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
         return taskMapper.toDto(task);
     }
 
+    @Caching(
+            put = @CachePut(value = "tasks", key = "#id"),
+            evict = @CacheEvict(value = "taskLists", allEntries = true))
     public TaskDto updateTask(Long id, TaskDto taskDto) {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
@@ -101,6 +111,9 @@ public class TaskService {
                 .toList();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "tasks", key = "#id"),
+            @CacheEvict(value = "taskLists", allEntries = true)})
     public void deleteTask(Long id) {
         if (!taskRepository.existsById(id)) {
             throw new ResourceNotFoundException("Task not found with id " + id);
