@@ -1,10 +1,12 @@
 package com.example.tasktracker.service;
 
+import com.example.tasktracker.dto.CreateTaskDto;
 import com.example.tasktracker.dto.TaskDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.mapper.TaskMapper;
 import com.example.tasktracker.model.Category;
 import com.example.tasktracker.model.Task;
+import com.example.tasktracker.model.TaskType;
 import com.example.tasktracker.model.User;
 import com.example.tasktracker.repository.CategoryRepository;
 import com.example.tasktracker.repository.TaskRepository;
@@ -52,6 +54,7 @@ class TaskServiceTest {
                 .id(1L)
                 .title("Do work")
                 .status("TODO")
+                .type(TaskType.OTHER)
                 .user(user)
                 .category(category)
                 .build();
@@ -59,15 +62,18 @@ class TaskServiceTest {
 
     @Test
     void createTask() {
-        TaskDto dto = new TaskDto(null, "Do work", null, null, "TODO", 1L, 1L);
+        CreateTaskDto dto = new CreateTaskDto("Do work", null, null, "TODO", null, 1L, 1L);
         when(taskMapper.toEntity(dto)).thenReturn(task);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(task.getUser()));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(task.getCategory()));
         when(taskRepository.save(any(Task.class))).thenReturn(task);
-        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", 1L, 1L));
+        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", TaskType.OTHER, 1L, 1L));
 
         TaskDto result = taskService.createTask(dto);
 
         assertNotNull(result);
         assertEquals("Do work", result.title());
+        assertEquals(TaskType.OTHER, result.type());
         assertEquals(1L, result.userId());
         assertEquals(1L, result.categoryId());
         verify(taskMapper).toEntity(dto);
@@ -77,7 +83,7 @@ class TaskServiceTest {
     @Test
     void getAllTasks_NoCategory() {
         when(taskRepository.findAll()).thenReturn(List.of(task));
-        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", 1L, 1L));
+        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", TaskType.OTHER, 1L, 1L));
 
         List<TaskDto> results = taskService.getAllTasks(null);
 
@@ -89,7 +95,7 @@ class TaskServiceTest {
     @Test
     void getAllTasks_WithCategory() {
         when(taskRepository.findByCategoryNameIgnoreCase("Work")).thenReturn(List.of(task));
-        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", 1L, 1L));
+        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", TaskType.OTHER, 1L, 1L));
 
         List<TaskDto> results = taskService.getAllTasks("Work");
 
@@ -99,9 +105,20 @@ class TaskServiceTest {
     }
 
     @Test
+    void getAllTasks_WithCategoryAndType() {
+        when(taskRepository.findByCategoryNameIgnoreCaseAndType("Work", TaskType.WORK)).thenReturn(List.of(task));
+        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", TaskType.OTHER, 1L, 1L));
+
+        List<TaskDto> results = taskService.getAllTasks("Work", TaskType.WORK);
+
+        assertEquals(1, results.size());
+        verify(taskRepository).findByCategoryNameIgnoreCaseAndType("Work", TaskType.WORK);
+    }
+
+    @Test
     void getTaskById() {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", 1L, 1L));
+        when(taskMapper.toDto(task)).thenReturn(new TaskDto(1L, "Do work", null, null, "TODO", TaskType.OTHER, 1L, 1L));
 
         TaskDto result = taskService.getTaskById(1L);
 
@@ -118,7 +135,8 @@ class TaskServiceTest {
 
     @Test
     void updateTask() {
-        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", 2L, 3L);
+        task.setType(TaskType.WORK);
+        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", null, 2L, 3L);
         User updatedUser = User.builder().id(2L).build();
         Category updatedCategory = Category.builder().id(3L).name("Home").build();
         Task updatedTask = Task.builder()
@@ -126,6 +144,7 @@ class TaskServiceTest {
                 .title("Updated title")
                 .description("Updated description")
                 .status("IN_PROGRESS")
+                .type(TaskType.WORK)
                 .user(updatedUser)
                 .category(updatedCategory)
                 .build();
@@ -135,19 +154,20 @@ class TaskServiceTest {
         when(categoryRepository.findById(3L)).thenReturn(Optional.of(updatedCategory));
         when(taskRepository.save(task)).thenReturn(updatedTask);
         when(taskMapper.toDto(updatedTask))
-                .thenReturn(new TaskDto(1L, "Updated title", "Updated description", null, "IN_PROGRESS", 2L, 3L));
+                .thenReturn(new TaskDto(1L, "Updated title", "Updated description", null, "IN_PROGRESS", TaskType.WORK, 2L, 3L));
 
         TaskDto result = taskService.updateTask(1L, dto);
 
         assertEquals("Updated title", result.title());
         assertEquals("IN_PROGRESS", result.status());
+        assertEquals(TaskType.WORK, result.type());
         assertEquals(2L, result.userId());
         assertEquals(3L, result.categoryId());
     }
 
     @Test
     void updateTask_WhenNotFound() {
-        TaskDto dto = new TaskDto(null, "Updated", null, null, "DONE", 1L, 1L);
+        TaskDto dto = new TaskDto(null, "Updated", null, null, "DONE", null, 1L, 1L);
         when(taskRepository.findById(100L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> taskService.updateTask(100L, dto));
@@ -155,7 +175,7 @@ class TaskServiceTest {
 
     @Test
     void updateTask_WhenUserNotFound() {
-        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", 99L, null);
+        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", null, 99L, null);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -165,7 +185,7 @@ class TaskServiceTest {
 
     @Test
     void updateTask_WhenCategoryNotFound() {
-        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", null, 99L);
+        TaskDto dto = new TaskDto(null, "Updated title", "Updated description", null, "IN_PROGRESS", null, null, 99L);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
         when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
 

@@ -1,6 +1,7 @@
 package com.example.tasktracker.mapper;
 
 import com.example.tasktracker.dto.CategoryDto;
+import com.example.tasktracker.dto.CreateCategoryDto;
 import com.example.tasktracker.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,4 +12,8 @@ public interface CategoryMapper {
 
     @Mapping(target = "tasks", ignore = true)
     Category toEntity(CategoryDto dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
+    Category toEntity(CreateCategoryDto dto);
 }

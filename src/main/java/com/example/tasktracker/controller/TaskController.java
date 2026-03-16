@@ -1,8 +1,11 @@
 package com.example.tasktracker.controller;
 
+import com.example.tasktracker.dto.CreateTaskDto;
 import com.example.tasktracker.dto.TaskDto;
+import com.example.tasktracker.model.TaskType;
 import com.example.tasktracker.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
@@ -21,19 +25,22 @@ public class TaskController {
 
     @PostMapping
     @Operation(summary = "Create a new task", description = "Creates a new task tied to a user and category")
-    public ResponseEntity<TaskDto> createTask(@RequestBody TaskDto taskDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(taskDto));
+    public ResponseEntity<TaskDto> createTask(@RequestBody CreateTaskDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(request));
     }
 
     @GetMapping
-    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks. Can be filtered by category name")
-    public ResponseEntity<List<TaskDto>> getAllTasks(@RequestParam(required = false) String category) {
-        return ResponseEntity.ok(taskService.getAllTasks(category));
+    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks. Can be filtered by category name or task type")
+    public ResponseEntity<List<TaskDto>> getAllTasks(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) TaskType type) {
+        return ResponseEntity.ok(taskService.getAllTasks(category, type));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get task by ID", description = "Returns a task by its ID")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long id) {
+        log.debug("GET /tasks/{}", id);
         return ResponseEntity.ok(taskService.getTaskById(id));
     }
 

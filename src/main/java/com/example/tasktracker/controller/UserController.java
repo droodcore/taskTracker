@@ -1,5 +1,6 @@
 package com.example.tasktracker.controller;
 
+import com.example.tasktracker.dto.CreateUserDto;
 import com.example.tasktracker.dto.UserDto;
 import com.example.tasktracker.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Create a new user", description = "Registers a new user in the system")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
+    public ResponseEntity<UserDto> createUser(@RequestBody CreateUserDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
     @GetMapping
@@ -39,8 +40,8 @@ public class UserController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update user", description = "Updates a user by its ID")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody CreateUserDto request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/{id}")

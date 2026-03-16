@@ -1,7 +1,9 @@
 package com.example.tasktracker.controller;
 
+import com.example.tasktracker.dto.CreateTaskDto;
 import com.example.tasktracker.dto.TaskDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
+import com.example.tasktracker.model.TaskType;
 import com.example.tasktracker.service.CategoryService;
 import com.example.tasktracker.service.TaskService;
 import com.example.tasktracker.service.UserService;
@@ -40,8 +42,8 @@ class TaskControllerTest {
 
     @Test
     void createTask() throws Exception {
-        TaskDto mockDto = new TaskDto(1L, "Title", "Desc", null, "TODO", 1L, 1L);
-        when(taskService.createTask(any(TaskDto.class))).thenReturn(mockDto);
+        TaskDto mockDto = new TaskDto(1L, "Title", "Desc", null, "TODO", TaskType.OTHER, 1L, 1L);
+        when(taskService.createTask(any(CreateTaskDto.class))).thenReturn(mockDto);
 
         mockMvc.perform(post("/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -52,8 +54,8 @@ class TaskControllerTest {
 
     @Test
     void getAllTasks() throws Exception {
-        when(taskService.getAllTasks(isNull())).thenReturn(List.of(
-                new TaskDto(1L, "Title", "Desc", null, "TODO", 1L, 1L)));
+        when(taskService.getAllTasks(isNull(), isNull())).thenReturn(List.of(
+                new TaskDto(1L, "Title", "Desc", null, "TODO", TaskType.OTHER, 1L, 1L)));
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
@@ -62,21 +64,34 @@ class TaskControllerTest {
 
     @Test
     void getAllTasks_WithCategoryFilter() throws Exception {
-        when(taskService.getAllTasks("Work")).thenReturn(List.of(
-                new TaskDto(2L, "Filtered", "Desc", null, "IN_PROGRESS", 1L, 2L)));
+        when(taskService.getAllTasks("Work", null)).thenReturn(List.of(
+                new TaskDto(2L, "Filtered", "Desc", null, "IN_PROGRESS", TaskType.WORK, 1L, 2L)));
 
         mockMvc.perform(get("/tasks").param("category", "Work"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].title").value("Filtered"));
 
-        verify(taskService).getAllTasks("Work");
+        verify(taskService).getAllTasks("Work", null);
+    }
+
+    @Test
+    void getAllTasks_WithCategoryAndTypeFilter() throws Exception {
+        when(taskService.getAllTasks("Home", TaskType.WORK)).thenReturn(List.of(
+                new TaskDto(3L, "Filtered", "Desc", null, "TODO", TaskType.WORK, 1L, 2L)));
+
+        mockMvc.perform(get("/tasks").param("category", "Home").param("type", "WORK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].type").value("WORK"));
+
+        verify(taskService).getAllTasks("Home", TaskType.WORK);
     }
 
     @Test
     void getTaskById() throws Exception {
         when(taskService.getTaskById(1L))
-                .thenReturn(new TaskDto(1L, "Title", "Desc", null, "TODO", 1L, 1L));
+                .thenReturn(new TaskDto(1L, "Title", "Desc", null, "TODO", TaskType.OTHER, 1L, 1L));
 
         mockMvc.perform(get("/tasks/1"))
                 .andExpect(status().isOk())
@@ -87,14 +102,15 @@ class TaskControllerTest {
     @Test
     void updateTask() throws Exception {
         when(taskService.updateTask(any(Long.class), any(TaskDto.class)))
-                .thenReturn(new TaskDto(1L, "Updated title", "Updated desc", null, "IN_PROGRESS", 2L, 3L));
+                .thenReturn(new TaskDto(1L, "Updated title", "Updated desc", null, "IN_PROGRESS", TaskType.WORK, 2L, 3L));
 
         mockMvc.perform(put("/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\":\"Updated title\",\"description\":\"Updated desc\",\"status\":\"IN_PROGRESS\",\"userId\":2,\"categoryId\":3}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated title"))
-                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$.type").value("WORK"));
     }
 
     @Test

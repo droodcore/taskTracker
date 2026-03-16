@@ -1,5 +1,6 @@
 package com.example.tasktracker.service;
 
+import com.example.tasktracker.dto.CreateUserDto;
 import com.example.tasktracker.dto.UserDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.mapper.UserMapper;
@@ -17,10 +18,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserDto createUser(UserDto userDto) {
-        User user = userMapper.toEntity(userDto);
-        User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+    public UserDto createUser(CreateUserDto request) {
+        return userMapper.toDto(userRepository.save(userMapper.toEntity(request)));
     }
 
     public List<UserDto> getAllUsers() {
@@ -35,15 +34,14 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    public UserDto updateUser(Long id, UserDto userDto) {
+    public UserDto updateUser(Long id, CreateUserDto request) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
-        existingUser.setUsername(userDto.username());
-        existingUser.setEmail(userDto.email());
+        existingUser.setUsername(request.username());
+        existingUser.setEmail(request.email());
 
-        User updatedUser = userRepository.save(existingUser);
-        return userMapper.toDto(updatedUser);
+        return userMapper.toDto(userRepository.save(existingUser));
     }
 
     public void deleteUser(Long id) {

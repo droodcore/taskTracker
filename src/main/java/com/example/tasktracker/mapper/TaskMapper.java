@@ -1,5 +1,6 @@
 package com.example.tasktracker.mapper;
 
+import com.example.tasktracker.dto.CreateTaskDto;
 import com.example.tasktracker.dto.TaskDto;
 import com.example.tasktracker.model.Category;
 import com.example.tasktracker.model.Task;
@@ -16,6 +17,11 @@ public interface TaskMapper {
     @Mapping(source = "userId", target = "user")
     @Mapping(source = "categoryId", target = "category")
     Task toEntity(TaskDto dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "userId", target = "user")
+    @Mapping(source = "categoryId", target = "category")
+    Task toEntity(CreateTaskDto dto);
 
     default User mapUser(Long id) {
         if (id == null) {

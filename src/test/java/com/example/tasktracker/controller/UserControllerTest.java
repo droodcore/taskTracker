@@ -1,5 +1,6 @@
 package com.example.tasktracker.controller;
 
+import com.example.tasktracker.dto.CreateUserDto;
 import com.example.tasktracker.dto.UserDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.service.CategoryService;
@@ -42,7 +43,7 @@ class UserControllerTest {
     @Test
     void createUser() throws Exception {
         UserDto mockDto = new UserDto(1L, "john", "john@example.com");
-        when(userService.createUser(any(UserDto.class))).thenReturn(mockDto);
+        when(userService.createUser(any(CreateUserDto.class))).thenReturn(mockDto);
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -73,7 +74,7 @@ class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
-        when(userService.updateUser(any(Long.class), any(UserDto.class)))
+        when(userService.updateUser(any(Long.class), any(CreateUserDto.class)))
                 .thenReturn(new UserDto(1L, "john-updated", "john-updated@example.com"));
 
         mockMvc.perform(put("/users/1")

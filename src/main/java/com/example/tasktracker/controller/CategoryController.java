@@ -1,6 +1,7 @@
 package com.example.tasktracker.controller;
 
 import com.example.tasktracker.dto.CategoryDto;
+import com.example.tasktracker.dto.CreateCategoryDto;
 import com.example.tasktracker.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,8 @@ public class CategoryController {
 
     @PostMapping
     @Operation(summary = "Create a new category", description = "Creates a new category in the system")
-    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(categoryDto));
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CreateCategoryDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(request));
     }
 
     @GetMapping
@@ -39,8 +40,8 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update category", description = "Updates a category by its ID")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, categoryDto));
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id, @RequestBody CreateCategoryDto request) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
     @DeleteMapping("/{id}")

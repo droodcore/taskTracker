@@ -1,6 +1,8 @@
 package com.example.tasktracker.service;
 
 import com.example.tasktracker.dto.CategoryDto;
+import com.example.tasktracker.dto.CreateCategoryDto;
+import com.example.tasktracker.exception.DuplicateResourceException;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.mapper.CategoryMapper;
 import com.example.tasktracker.model.Category;
@@ -17,10 +19,11 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
-    public CategoryDto createCategory(CategoryDto categoryDto) {
-        Category category = categoryMapper.toEntity(categoryDto);
-        Category savedCategory = categoryRepository.save(category);
-        return categoryMapper.toDto(savedCategory);
+    public CategoryDto createCategory(CreateCategoryDto request) {
+        categoryRepository.findByName(request.name()).ifPresent(c -> {
+            throw new DuplicateResourceException("Category with name '" + request.name() + "' already exists");
+        });
+        return categoryMapper.toDto(categoryRepository.save(categoryMapper.toEntity(request)));
     }
 
     public List<CategoryDto> getAllCategories() {
@@ -35,14 +38,13 @@ public class CategoryService {
         return categoryMapper.toDto(category);
     }
 
-    public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
+    public CategoryDto updateCategory(Long id, CreateCategoryDto request) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
 
-        existingCategory.setName(categoryDto.name());
+        existingCategory.setName(request.name());
 
-        Category updatedCategory = categoryRepository.save(existingCategory);
-        return categoryMapper.toDto(updatedCategory);
+        return categoryMapper.toDto(categoryRepository.save(existingCategory));
     }
 
     public void deleteCategory(Long id) {

@@ -1,5 +1,6 @@
 package com.example.tasktracker.mapper;
 
+import com.example.tasktracker.dto.CreateUserDto;
 import com.example.tasktracker.dto.UserDto;
 import com.example.tasktracker.model.User;
 import org.mapstruct.Mapper;
@@ -11,4 +12,8 @@ public interface UserMapper {
 
     @Mapping(target = "tasks", ignore = true)
     User toEntity(UserDto dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
+    User toEntity(CreateUserDto dto);
 }

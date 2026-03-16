@@ -1,6 +1,7 @@
 package com.example.tasktracker.service;
 
 import com.example.tasktracker.dto.CategoryDto;
+import com.example.tasktracker.dto.CreateCategoryDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.mapper.CategoryMapper;
 import com.example.tasktracker.model.Category;
@@ -42,7 +43,7 @@ class CategoryServiceTest {
 
     @Test
     void createCategory() {
-        CategoryDto dto = new CategoryDto(null, "Work");
+        CreateCategoryDto dto = new CreateCategoryDto("Work");
         when(categoryMapper.toEntity(dto)).thenReturn(category);
         when(categoryRepository.save(any(Category.class))).thenReturn(category);
         when(categoryMapper.toDto(category)).thenReturn(new CategoryDto(1L, "Work"));
@@ -88,7 +89,7 @@ class CategoryServiceTest {
 
     @Test
     void updateCategory() {
-        CategoryDto dto = new CategoryDto(null, "Updated");
+        CreateCategoryDto dto = new CreateCategoryDto("Updated");
         Category updated = Category.builder().id(1L).name("Updated").build();
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(categoryRepository.save(category)).thenReturn(updated);

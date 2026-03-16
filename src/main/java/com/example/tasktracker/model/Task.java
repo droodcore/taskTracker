@@ -38,4 +38,8 @@ public class Task {
 
     @Column(nullable = false)
     private String status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskType type;
 }

@@ -1,5 +1,6 @@
 package com.example.tasktracker.service;
 
+import com.example.tasktracker.dto.CreateUserDto;
 import com.example.tasktracker.dto.UserDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.mapper.UserMapper;
@@ -44,7 +45,7 @@ class UserServiceTest {
 
     @Test
     void createUser() {
-        UserDto dto = new UserDto(null, "john", "john@example.com");
+        CreateUserDto dto = new CreateUserDto("john", "john@example.com");
         when(userMapper.toEntity(dto)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(new UserDto(1L, "john", "john@example.com"));
@@ -89,7 +90,7 @@ class UserServiceTest {
 
     @Test
     void updateUser() {
-        UserDto dto = new UserDto(null, "john-updated", "john-updated@example.com");
+        CreateUserDto dto = new CreateUserDto("john-updated", "john-updated@example.com");
         User updated = User.builder().id(1L).username("john-updated").email("john-updated@example.com").build();
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(updated);

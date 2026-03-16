@@ -1,6 +1,7 @@
 package com.example.tasktracker.controller;
 
 import com.example.tasktracker.dto.CategoryDto;
+import com.example.tasktracker.dto.CreateCategoryDto;
 import com.example.tasktracker.exception.ResourceNotFoundException;
 import com.example.tasktracker.service.CategoryService;
 import com.example.tasktracker.service.TaskService;
@@ -42,7 +43,7 @@ class CategoryControllerTest {
     @Test
     void createCategory() throws Exception {
         CategoryDto mockDto = new CategoryDto(1L, "Work");
-        when(categoryService.createCategory(any(CategoryDto.class))).thenReturn(mockDto);
+        when(categoryService.createCategory(any(CreateCategoryDto.class))).thenReturn(mockDto);
 
         mockMvc.perform(post("/categories")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -76,7 +77,7 @@ class CategoryControllerTest {
 
     @Test
     void updateCategory() throws Exception {
-        when(categoryService.updateCategory(any(Long.class), any(CategoryDto.class)))
+        when(categoryService.updateCategory(any(Long.class), any(CreateCategoryDto.class)))
                 .thenReturn(new CategoryDto(1L, "Updated"));
 
         mockMvc.perform(put("/categories/1")

@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/002-default-categories.sql
   - include:
       file: db/changelog/003-test-data.sql
+  - include:
+      file: db/changelog/004-add-task-type.sql
