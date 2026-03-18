@@ -136,7 +136,7 @@ Verification:
 - [x] `mvn -q -pl notification-service -am test`
 
 Commit:
-- Pending: ready to commit after reviewing the final diff for this stage.
+- Done: `94857b3` - `Add Kafka retries, circuit breaker and DLT handling`
 
 ### Stage 6. Tests and final verification
 
@@ -144,18 +144,19 @@ Goal:
 - Strengthen automated coverage and verify end-to-end state.
 
 Tasks:
-- [ ] Update existing unit tests.
-- [ ] Add tests for new repository filtering and paging.
-- [ ] Add tests for Kafka producer/consumer related logic where practical.
-- [ ] Run targeted Maven test suites.
-- [ ] Record final verification results here.
+- [x] Update existing unit tests.
+- [x] Add tests for new repository filtering and paging.
+- [x] Add tests for Kafka producer/consumer related logic where practical.
+- [x] Run targeted Maven test suites.
+- [x] Record final verification results here.
 
 Verification:
-- Relevant test commands succeed.
-- Remaining risks are documented.
+- [x] Relevant test commands succeed.
+- [x] Remaining risks are documented.
+- [x] `mvn -q test`
 
 Commit:
-- Pending
+- Pending: final tracker update is ready to commit.
 
 ## Notes
 
@@ -166,3 +167,11 @@ Commit:
   - current monolith `src/` was moved to `task-service/src/`
   - new module POMs were created for `task-service`, `notification-service`, `task-contracts`
   - Git still shows deletions from old paths until stage 1 is completed
+- Final verification summary:
+  - `mvn -q -pl task-service -am test` passed
+  - `mvn -q -pl notification-service -am test` passed
+  - `mvn -q test` passed for the full multi-module reactor
+  - `docker compose config` passed
+- Remaining risks:
+  - Docker images were not built in this environment, only the compose config was validated.
+  - Kafka retry/DLT flow is covered structurally and by targeted tests, but not by an end-to-end embedded Kafka failure scenario yet.
