@@ -25,7 +25,6 @@ public class TaskEventConsumer {
 
     @RetryableTopic(
             attempts = "${app.kafka.retry.attempts}",
-            kafkaTemplate = "retryTopicKafkaTemplate",
             dltTopicSuffix = "${app.kafka.topic.dlt-suffix}",
             autoCreateTopics = "${app.kafka.retry.auto-create-topics:true}",
             numPartitions = "${app.kafka.topic.partitions:3}",
