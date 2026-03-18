@@ -1,10 +1,10 @@
 spring:
   application:
-    name: task-tracker
+    name: task-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:task_tracker}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres_secret_pass}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,8 +17,22 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+app:
+  cache:
+    redis-enabled: ${REDIS_CACHE_ENABLED:true}
+  kafka:
+    topic:
+      task-notifications: ${TASK_NOTIFICATIONS_TOPIC:task-notifications}
 
 logging:
   level:

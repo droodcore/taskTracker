@@ -9,16 +9,19 @@ import com.example.tasktracker.model.Category;
 import com.example.tasktracker.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
+    @Transactional
     public CategoryDto createCategory(CreateCategoryDto request) {
         categoryRepository.findByName(request.name()).ifPresent(c -> {
             throw new DuplicateResourceException("Category with name '" + request.name() + "' already exists");
@@ -38,6 +41,7 @@ public class CategoryService {
         return categoryMapper.toDto(category);
     }
 
+    @Transactional
     public CategoryDto updateCategory(Long id, CreateCategoryDto request) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
@@ -47,6 +51,7 @@ public class CategoryService {
         return categoryMapper.toDto(categoryRepository.save(existingCategory));
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("Category not found with id " + id);

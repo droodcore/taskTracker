@@ -5,12 +5,13 @@
 - Work only by stages.
 - After each stage: run relevant checks, update this file, then prepare a commit.
 - Do not start the next stage until the current one is verified.
+- Commit messages should describe the actual change and should not include stage labels.
 
 ## Current Status
 
 - Date: 2026-03-18
 - Repository mode: migration from monolith to multi-module
-- In progress: stage 0 planning and tracking
+- In progress: stage 2 task-service requirements
 
 ## Stages
 
@@ -56,7 +57,7 @@ Verification:
 - [x] `mvn -q -DskipTests compile`
 
 Commit:
-- Pending: create commit after reviewing git state for stage-only changes.
+- Done: `7e99841` - `Stage 1: split project into Maven modules`
 
 ### Stage 2. Task service requirements
 
@@ -64,19 +65,20 @@ Goal:
 - Complete mentor requirements in the main task service.
 
 Tasks:
-- [ ] Add `@Transactional` to service operations.
-- [ ] Add pagination and sorting to task listing.
-- [ ] Add filtering by status and date.
-- [ ] Add a repository `@Query`.
-- [ ] Add Kafka producer for task events.
-- [ ] Use `@ConditionalOnProperty` for Redis cache switching.
+- [x] Add `@Transactional` to service operations.
+- [x] Add pagination and sorting to task listing.
+- [x] Add filtering by status and date.
+- [x] Add a repository `@Query`.
+- [x] Add Kafka producer for task events.
+- [x] Use `@ConditionalOnProperty` for Redis cache switching.
 
 Verification:
-- Unit tests for service/controller/repository pass.
-- Main task endpoint supports filters and paging.
+- [x] Unit tests for service/controller/repository pass.
+- [x] Main task endpoint supports filters and paging.
+- [x] `mvn -q -pl task-service -am test`
 
 Commit:
-- Pending
+- Pending: ready to commit after reviewing the final diff for this stage.
 
 ### Stage 3. Notification service
 

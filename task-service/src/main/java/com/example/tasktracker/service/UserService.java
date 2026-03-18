@@ -8,16 +8,19 @@ import com.example.tasktracker.model.User;
 import com.example.tasktracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional
     public UserDto createUser(CreateUserDto request) {
         return userMapper.toDto(userRepository.save(userMapper.toEntity(request)));
     }
@@ -34,6 +37,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    @Transactional
     public UserDto updateUser(Long id, CreateUserDto request) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
@@ -44,6 +48,7 @@ public class UserService {
         return userMapper.toDto(userRepository.save(existingUser));
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id " + id);

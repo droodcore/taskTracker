@@ -6,13 +6,15 @@ import com.example.tasktracker.model.TaskType;
 import com.example.tasktracker.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Slf4j
 @RestController
@@ -30,11 +32,19 @@ public class TaskController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks. Can be filtered by category name or task type")
-    public ResponseEntity<List<TaskDto>> getAllTasks(
+    @Operation(summary = "Get tasks", description = "Returns tasks with filtering, pagination and sorting")
+    public ResponseEntity<Page<TaskDto>> getAllTasks(
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) TaskType type) {
-        return ResponseEntity.ok(taskService.getAllTasks(category, type));
+            @RequestParam(required = false) TaskType type,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate deadlineFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate deadlineTo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+        return ResponseEntity.ok(taskService.getTasks(
+                category, type, status, deadlineFrom, deadlineTo, page, size, sortBy, sortDir));
     }
 
     @GetMapping("/{id}")
