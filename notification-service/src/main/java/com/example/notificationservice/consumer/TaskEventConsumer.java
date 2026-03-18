@@ -39,18 +39,10 @@ public class TaskEventConsumer {
             topics = "${app.kafka.topic.task-notifications}",
             groupId = "${spring.kafka.consumer.group-id}")
     public void consume(TaskNotificationEvent event) {
-        String message = buildMessage(event);
+        String message = event.eventType().buildMessage(event);
         notificationService.sendNotification(event.channel(), message, event.recipient());
         log.info("Processed task event type={} taskId={} recipient={}",
                 event.eventType(), event.taskId(), event.recipient());
-    }
-
-    private String buildMessage(TaskNotificationEvent event) {
-        return switch (event.eventType()) {
-            case CREATED -> "Task '%s' was created with status %s".formatted(event.title(), event.status());
-            case UPDATED -> "Task '%s' was updated. Current status: %s".formatted(event.title(), event.status());
-            case DELETED -> "Task '%s' was deleted".formatted(event.title());
-        };
     }
 
     @DltHandler
