@@ -11,7 +11,7 @@
 
 - Date: 2026-03-18
 - Repository mode: migration from monolith to multi-module
-- In progress: stage 2 task-service requirements
+- In progress: stage 4 containers and docker compose
 
 ## Stages
 
@@ -78,7 +78,7 @@ Verification:
 - [x] `mvn -q -pl task-service -am test`
 
 Commit:
-- Pending: ready to commit after reviewing the final diff for this stage.
+- Done: `25f39ff` - `Add task search and Kafka event publishing`
 
 ### Stage 3. Notification service
 
@@ -86,17 +86,18 @@ Goal:
 - Extract notifications into a separate Spring Boot service.
 
 Tasks:
-- [ ] Move notification logic into `notification-service`.
-- [ ] Implement Strategy pattern with multiple senders.
-- [ ] Add Kafka consumer for task events.
-- [ ] Configure the service as an independent application.
+- [x] Move notification logic into `notification-service`.
+- [x] Implement Strategy pattern with multiple senders.
+- [x] Add Kafka consumer for task events.
+- [x] Configure the service as an independent application.
 
 Verification:
-- Notification service starts separately.
-- Consumer processes incoming task events.
+- [x] Notification service starts separately.
+- [x] Consumer processes incoming task events.
+- [x] `mvn -q -pl notification-service -am test`
 
 Commit:
-- Pending
+- Pending: ready to commit after reviewing the final diff for this stage.
 
 ### Stage 4. Containers and docker compose
 

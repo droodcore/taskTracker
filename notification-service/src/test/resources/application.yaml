@@ -1,10 +1,10 @@
 spring:
-  application:
-    name: notification-service
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: localhost:9092
+    listener:
+      auto-startup: false
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP:notification-service}
+      group-id: notification-service-test
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -15,4 +15,4 @@ spring:
 app:
   kafka:
     topic:
-      task-notifications: ${TASK_NOTIFICATIONS_TOPIC:task-notifications}
+      task-notifications: test-task-notifications
