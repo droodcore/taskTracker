@@ -2,13 +2,16 @@ package com.example.tasktracker.config;
 
 import com.example.taskcontracts.event.TaskNotificationEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
@@ -30,5 +33,18 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, TaskNotificationEvent> taskEventKafkaTemplate(
             ProducerFactory<String, TaskNotificationEvent> taskEventProducerFactory) {
         return new KafkaTemplate<>(taskEventProducerFactory);
+    }
+
+    @Bean
+    public NewTopic taskNotificationsTopic(
+            @Value("${app.kafka.topic.task-notifications}") String topicName,
+            @Value("${app.kafka.topic.partitions:3}") int partitions,
+            @Value("${app.kafka.topic.replication-factor:3}") short replicationFactor,
+            @Value("${app.kafka.topic.min-insync-replicas:2}") String minInSyncReplicas) {
+        return TopicBuilder.name(topicName)
+                .partitions(partitions)
+                .replicas(replicationFactor)
+                .config("min.insync.replicas", minInSyncReplicas)
+                .build();
     }
 }

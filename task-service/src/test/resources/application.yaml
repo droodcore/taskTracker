@@ -9,10 +9,12 @@ spring:
       ddl-auto: validate
   kafka:
     bootstrap-servers: localhost:9092
-  data:
-    redis:
-      repositories:
-        enabled: false
+    admin:
+      auto-create: false
+    data:
+      redis:
+        repositories:
+          enabled: false
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 

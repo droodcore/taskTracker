@@ -2,19 +2,29 @@ spring:
   application:
     name: notification-service
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
+    listener:
+      ack-mode: record
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:notification-service}
       auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
+        isolation.level: read_uncommitted
         spring.json.trusted.packages: "com.example.taskcontracts.event"
         spring.json.value.default.type: "com.example.taskcontracts.event.TaskNotificationEvent"
     producer:
+      acks: all
+      retries: 2147483647
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 120000
+        max.in.flight.requests.per.connection: 5
+        request.timeout.ms: 30000
         spring.json.add.type.headers: false
 
 app:
@@ -22,6 +32,8 @@ app:
     topic:
       task-notifications: ${TASK_NOTIFICATIONS_TOPIC:task-notifications}
       dlt-suffix: ${TASK_NOTIFICATIONS_DLT_SUFFIX:-dlt}
+      partitions: ${KAFKA_TOPIC_PARTITIONS:3}
+      replication-factor: ${KAFKA_TOPIC_REPLICATION_FACTOR:3}
     retry:
       attempts: ${KAFKA_RETRY_ATTEMPTS:4}
       initial-delay-ms: ${KAFKA_RETRY_INITIAL_DELAY_MS:1000}

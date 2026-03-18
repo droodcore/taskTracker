@@ -28,6 +28,8 @@ public class TaskEventConsumer {
             kafkaTemplate = "retryTopicKafkaTemplate",
             dltTopicSuffix = "${app.kafka.topic.dlt-suffix}",
             autoCreateTopics = "${app.kafka.retry.auto-create-topics:true}",
+            numPartitions = "${app.kafka.topic.partitions:3}",
+            replicationFactor = "${app.kafka.topic.replication-factor:3}",
             backoff = @Backoff(
                     delayExpression = "${app.kafka.retry.initial-delay-ms}",
                     multiplierExpression = "${app.kafka.retry.multiplier}",
