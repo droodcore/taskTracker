@@ -1,0 +1,7 @@
+.git
+.idea
+.mvn/wrapper/maven-wrapper.jar
+**/target
+cp.txt
+maven_debug.log
+TASKS.md

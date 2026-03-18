@@ -11,7 +11,7 @@
 
 - Date: 2026-03-18
 - Repository mode: migration from monolith to multi-module
-- In progress: stage 4 containers and docker compose
+- In progress: stage 5 Kafka resilience
 
 ## Stages
 
@@ -97,7 +97,7 @@ Verification:
 - [x] `mvn -q -pl notification-service -am test`
 
 Commit:
-- Pending: ready to commit after reviewing the final diff for this stage.
+- Done: `ea81f7e` - `Extract notification service and Kafka consumer`
 
 ### Stage 4. Containers and docker compose
 
@@ -105,19 +105,39 @@ Goal:
 - Run services independently in containers with infrastructure.
 
 Tasks:
-- [ ] Add Dockerfile for `task-service`.
-- [ ] Add Dockerfile for `notification-service`.
-- [ ] Update `docker-compose.yml` with PostgreSQL, Redis, Kafka, task-service, notification-service.
-- [ ] Configure container-friendly environment values.
+- [x] Add Dockerfile for `task-service`.
+- [x] Add Dockerfile for `notification-service`.
+- [x] Update `docker-compose.yml` with PostgreSQL, Redis, Kafka, task-service, notification-service.
+- [x] Configure container-friendly environment values.
 
 Verification:
-- `docker compose config` is valid.
-- Services are wired through container hostnames.
+- [x] `docker compose config` is valid.
+- [x] Services are wired through container hostnames.
+- [x] `docker compose config`
+
+Commit:
+- Pending: ready to commit after reviewing the final diff for this stage.
+
+### Stage 5. Kafka resilience
+
+Goal:
+- Make inter-service Kafka processing more resilient.
+
+Tasks:
+- [ ] Add retry handling for message processing.
+- [ ] Add exponential backoff for retries.
+- [ ] Add circuit breaker around notification delivery.
+- [ ] Configure dead letter topic handling.
+- [ ] Add dedicated logging for dead letter events.
+
+Verification:
+- Retry/DLT behavior is covered by targeted tests where practical.
+- Failure flow is documented and observable in logs.
 
 Commit:
 - Pending
 
-### Stage 5. Tests and final verification
+### Stage 6. Tests and final verification
 
 Goal:
 - Strengthen automated coverage and verify end-to-end state.
