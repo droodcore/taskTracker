@@ -11,8 +11,31 @@ spring:
       properties:
         spring.json.trusted.packages: "com.example.taskcontracts.event"
         spring.json.value.default.type: "com.example.taskcontracts.event.TaskNotificationEvent"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 
 app:
   kafka:
     topic:
       task-notifications: test-task-notifications
+      dlt-suffix: -dlt
+    retry:
+      attempts: 3
+      initial-delay-ms: 100
+      multiplier: 2.0
+      max-delay-ms: 500
+      auto-create-topics: false
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      notification-delivery:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 5
+        minimum-number-of-calls: 3
+        permitted-number-of-calls-in-half-open-state: 2
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 1s

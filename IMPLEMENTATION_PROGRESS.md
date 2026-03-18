@@ -11,7 +11,7 @@
 
 - Date: 2026-03-18
 - Repository mode: migration from monolith to multi-module
-- In progress: stage 5 Kafka resilience
+- In progress: stage 6 tests and final verification
 
 ## Stages
 
@@ -116,7 +116,7 @@ Verification:
 - [x] `docker compose config`
 
 Commit:
-- Pending: ready to commit after reviewing the final diff for this stage.
+- Done: `11a0879` - `Add Dockerfiles and compose stack`
 
 ### Stage 5. Kafka resilience
 
@@ -124,18 +124,19 @@ Goal:
 - Make inter-service Kafka processing more resilient.
 
 Tasks:
-- [ ] Add retry handling for message processing.
-- [ ] Add exponential backoff for retries.
-- [ ] Add circuit breaker around notification delivery.
-- [ ] Configure dead letter topic handling.
-- [ ] Add dedicated logging for dead letter events.
+- [x] Add retry handling for message processing.
+- [x] Add exponential backoff for retries.
+- [x] Add circuit breaker around notification delivery.
+- [x] Configure dead letter topic handling.
+- [x] Add dedicated logging for dead letter events.
 
 Verification:
-- Retry/DLT behavior is covered by targeted tests where practical.
-- Failure flow is documented and observable in logs.
+- [x] Retry/DLT behavior is covered by targeted tests where practical.
+- [x] Failure flow is documented and observable in logs.
+- [x] `mvn -q -pl notification-service -am test`
 
 Commit:
-- Pending
+- Pending: ready to commit after reviewing the final diff for this stage.
 
 ### Stage 6. Tests and final verification
 

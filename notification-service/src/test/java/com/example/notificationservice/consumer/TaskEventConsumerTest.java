@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
 class TaskEventConsumerTest {
@@ -40,5 +41,19 @@ class TaskEventConsumerTest {
                 NotificationChannel.EMAIL,
                 "Task 'Prepare report' was created with status TODO",
                 "john@example.com");
+    }
+
+    @Test
+    void handleDlt_LogsDeadLetterEventWithoutThrowing() {
+        TaskNotificationEvent event = new TaskNotificationEvent(
+                TaskEventType.DELETED,
+                7L,
+                "Archive task",
+                "DONE",
+                "john@example.com",
+                NotificationChannel.EMAIL,
+                LocalDateTime.now());
+
+        assertDoesNotThrow(() -> taskEventConsumer.handleDlt(event, "task-notifications-dlt", 0, 42L));
     }
 }
