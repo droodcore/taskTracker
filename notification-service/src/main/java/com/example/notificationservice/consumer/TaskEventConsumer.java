@@ -38,7 +38,16 @@ public class TaskEventConsumer {
     @KafkaListener(
             topics = "${app.kafka.topic.task-notifications}",
             groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(TaskNotificationEvent event) {
+    public void consume(
+            TaskNotificationEvent event,
+            @Header(name = KafkaHeaders.RECEIVED_TOPIC) String topic,
+            @Header(name = KafkaHeaders.DELIVERY_ATTEMPT, required = false) Integer deliveryAttempt) {
+        if (deliveryAttempt != null && deliveryAttempt > 1) {
+            log.warn(
+                    "Retrying task event attempt={} topic={} taskId={} eventType={} recipient={}",
+                    deliveryAttempt, topic, event.taskId(), event.eventType(), event.recipient());
+        }
+
         String message = event.eventType().buildMessage(event);
         notificationService.sendNotification(event.channel(), message, event.recipient());
         log.info("Processed task event type={} taskId={} recipient={}",

@@ -35,7 +35,7 @@ class TaskEventConsumerTest {
                 NotificationChannel.EMAIL,
                 LocalDateTime.now());
 
-        taskEventConsumer.consume(event);
+        taskEventConsumer.consume(event, "task-notifications", 1);
 
         verify(notificationService).sendNotification(
                 NotificationChannel.EMAIL,
