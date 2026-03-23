@@ -18,6 +18,7 @@ spring:
         isolation.level: read_uncommitted
         spring.json.trusted.packages: "com.example.taskcontracts.event"
         spring.json.value.default.type: "com.example.taskcontracts.event.TaskNotificationEvent"
+        interceptor.classes: com.example.notificationservice.interceptor.TraceIdConsumerInterceptor
     producer:
       acks: all
       retries: 2147483647
