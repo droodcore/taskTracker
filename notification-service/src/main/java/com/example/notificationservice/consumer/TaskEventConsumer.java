@@ -2,7 +2,7 @@ package com.example.notificationservice.consumer;
 
 import com.example.notificationservice.service.NotificationService;
 import com.example.taskcontracts.event.TaskNotificationEvent;
-import lombok.RequiredArgsConstructor;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +16,17 @@ import org.springframework.retry.annotation.Backoff;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class TaskEventConsumer {
 
     private static final Logger dltLogger = LoggerFactory.getLogger("notification-dlt");
 
     private final NotificationService notificationService;
+    private final MeterRegistry meterRegistry;
+
+    public TaskEventConsumer(NotificationService notificationService, MeterRegistry meterRegistry) {
+        this.notificationService = notificationService;
+        this.meterRegistry = meterRegistry;
+    }
 
     @RetryableTopic(
             attempts = "${app.kafka.retry.attempts}",
@@ -52,6 +57,7 @@ public class TaskEventConsumer {
         notificationService.sendNotification(event.channel(), message, event.recipient());
         log.info("Processed task event type={} taskId={} recipient={}",
                 event.eventType(), event.taskId(), event.recipient());
+        meterRegistry.counter("kafka_events_consumed_total", "event_type", event.eventType().name()).increment();
     }
 
     @DltHandler
@@ -63,5 +69,6 @@ public class TaskEventConsumer {
         dltLogger.error(
                 "Event routed to DLT topic={} partition={} offset={} taskId={} eventType={} recipient={}",
                 topic, partition, offset, event.taskId(), event.eventType(), event.recipient());
+        meterRegistry.counter("dlt_messages_total").increment();
     }
 }

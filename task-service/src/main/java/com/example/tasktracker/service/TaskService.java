@@ -12,6 +12,7 @@ import com.example.tasktracker.repository.CategoryRepository;
 import com.example.tasktracker.repository.TaskRepository;
 import com.example.tasktracker.repository.UserRepository;
 import com.example.taskcontracts.event.TaskEventType;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -40,6 +42,7 @@ public class TaskService {
     private final CategoryRepository categoryRepository;
     private final TaskMapper taskMapper;
     private final TaskEventProducer taskEventProducer;
+    private final MeterRegistry meterRegistry;
 
     @Transactional
     @CacheEvict(value = "taskLists", allEntries = true)
@@ -52,6 +55,7 @@ public class TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + request.categoryId())));
 
         Task savedTask = taskRepository.save(task);
+        meterRegistry.counter("tasks_created_total").increment();
         taskEventProducer.sendTaskEvent(TaskEventType.CREATED, savedTask);
 
         TaskDto created = taskMapper.toDto(savedTask);
@@ -101,6 +105,7 @@ public class TaskService {
         existingTask.setDescription(taskDto.description());
         existingTask.setDeadline(taskDto.deadline());
         existingTask.setStatus(taskDto.status());
+
         if (taskDto.type() != null) {
             existingTask.setType(taskDto.type());
         }

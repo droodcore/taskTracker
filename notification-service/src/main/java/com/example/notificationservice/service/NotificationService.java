@@ -4,6 +4,7 @@ import com.example.notificationservice.exception.NotificationDeliveryException;
 import com.example.notificationservice.strategy.NotificationSender;
 import com.example.taskcontracts.event.NotificationChannel;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
     private final Map<NotificationChannel, NotificationSender> senders;
+    private final MeterRegistry meterRegistry;
 
-    public NotificationService(List<NotificationSender> senders) {
+    public NotificationService(List<NotificationSender> senders, MeterRegistry meterRegistry) {
         this.senders = senders.stream()
                 .collect(Collectors.toUnmodifiableMap(NotificationSender::channel, Function.identity()));
+        this.meterRegistry = meterRegistry;
     }
 
     @CircuitBreaker(name = "notification-delivery", fallbackMethod = "fallbackSendNotification")
@@ -31,6 +34,7 @@ public class NotificationService {
         }
 
         notificationSender.send(message, recipient);
+        meterRegistry.counter("notifications_sent_total", "channel", notificationChannel.name()).increment();
     }
 
     @SuppressWarnings("unused")
