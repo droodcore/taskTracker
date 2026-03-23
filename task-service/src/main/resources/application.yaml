@@ -23,14 +23,14 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094,localhost:9095,localhost:9096}
     producer:
       acks: all
-      retries: 2147483647
+      retries: 0
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        enable.idempotence: true
-        delivery.timeout.ms: 120000
+        enable.idempotence: false
+        delivery.timeout.ms: 5000
         max.in.flight.requests.per.connection: 5
-        request.timeout.ms: 30000
+        request.timeout.ms: 3000
         spring.json.add.type.headers: false
 
 app:
@@ -59,3 +59,27 @@ management:
   metrics:
     tags:
       application: task-service
+
+resilience4j:
+  retry:
+    instances:
+      kafkaPublisher:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2.0
+        retry-exceptions:
+          - org.apache.kafka.common.KafkaException
+          - java.util.concurrent.TimeoutException
+          - java.util.concurrent.ExecutionException
+        ignore-exceptions:
+          - org.apache.kafka.common.errors.SerializationException
+  circuitbreaker:
+    instances:
+      kafkaPublisher:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
