@@ -7,6 +7,8 @@ import com.example.tasktracker.exception.ValidationException;
 import com.example.tasktracker.mapper.TaskMapper;
 import com.example.tasktracker.messaging.TaskEventProducer;
 import com.example.tasktracker.model.Category;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import com.example.tasktracker.model.Task;
 import com.example.tasktracker.model.TaskType;
 import com.example.tasktracker.model.User;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -58,6 +61,12 @@ class TaskServiceTest {
     @Mock
     private TaskEventProducer taskEventProducer;
 
+    @Mock
+    private MeterRegistry meterRegistry;
+
+    @Mock
+    private Counter counter;
+
     @InjectMocks
     private TaskService taskService;
 
@@ -65,6 +74,8 @@ class TaskServiceTest {
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(meterRegistry.counter(anyString())).thenReturn(counter);
+
         User user = User.builder().id(1L).email("john@example.com").build();
         Category category = Category.builder().id(1L).name("Work").build();
 

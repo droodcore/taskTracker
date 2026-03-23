@@ -4,6 +4,9 @@ import com.example.notificationservice.service.NotificationService;
 import com.example.taskcontracts.event.NotificationChannel;
 import com.example.taskcontracts.event.TaskEventType;
 import com.example.taskcontracts.event.TaskNotificationEvent;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -21,8 +26,20 @@ class TaskEventConsumerTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private MeterRegistry meterRegistry;
+
+    @Mock
+    private Counter counter;
+
     @InjectMocks
     private TaskEventConsumer taskEventConsumer;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(meterRegistry.counter(anyString())).thenReturn(counter);
+        lenient().when(meterRegistry.counter(anyString(), anyString(), anyString())).thenReturn(counter);
+    }
 
     @Test
     void consume_SendsNotificationUsingEventData() {
